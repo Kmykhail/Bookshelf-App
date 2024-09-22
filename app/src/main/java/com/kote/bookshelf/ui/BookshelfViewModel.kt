@@ -36,15 +36,15 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
     private val _bookshelfState = MutableStateFlow(BookshelfUiState())
     val bookshelfState: StateFlow<BookshelfUiState> = _bookshelfState
 
-    fun getBookshelf(input: String) {
-        if (input.isNotEmpty()) {
+    fun getBookshelf(userInput: String) {
+        if (userInput.isNotEmpty()) {
             viewModelScope.launch {
                 try {
-                    val validResponse = bookshelfRepository.searchBooks(input)
+                    val validResponse = bookshelfRepository.searchBooks(userInput)
                     _bookshelfState.update {
                         it.copy(bookshelf = validResponse, responseState = ResponseState.Success)
                     }
-                    println("$input the number of result is ${bookshelfState.value.bookshelf?.items?.size}")
+                    Log.d("ViewModel", "$userInput the number of result is ${bookshelfState.value.bookshelf?.items?.size}")
                 } catch (e: IOException) {
                     _bookshelfState.update {
                         it.copy(bookshelf = null, responseState = ResponseState.Error)
