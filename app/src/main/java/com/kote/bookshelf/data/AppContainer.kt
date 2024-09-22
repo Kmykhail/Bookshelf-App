@@ -15,7 +15,6 @@ class DefaultAppContainer: AppContainer{
     private val json = Json{
         ignoreUnknownKeys = true
         isLenient = true
-//        classDiscriminator = "type"
     }
 
     private val retrofit: Retrofit = Retrofit.Builder()

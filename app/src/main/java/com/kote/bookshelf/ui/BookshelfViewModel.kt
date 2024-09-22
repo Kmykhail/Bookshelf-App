@@ -13,6 +13,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kote.bookshelf.BookshelfApplication
 import com.kote.bookshelf.data.BookshelfRepository
 import com.kote.bookshelf.model.Bookshelf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -20,43 +23,38 @@ import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
 
+enum class ResponseState{
+    Success, Error, Loading
+}
+
+data class BookshelfUiState(
+    val bookshelf: Bookshelf? = null,
+    val responseState: ResponseState = ResponseState.Loading
+)
+
 class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) : ViewModel() {
-    var data: String by mutableStateOf("")
-        private set
+    private val _bookshelfState = MutableStateFlow(BookshelfUiState())
+    val bookshelfState: StateFlow<BookshelfUiState> = _bookshelfState
 
-    init {
-        getBookshelf()
-    }
-
-    fun getBookshelf() {
-        viewModelScope.launch {
-            try {
-                val info = bookshelfRepository.testRequest("mass effect")
-                println("CHECK, ${info.items?.size}")
-
-//                info.enqueue(object : Callback<Bookshelf> {
-//                    override fun onResponse(call: Call<Bookshelf>, response: Response<Bookshelf>) {
-//                        if (response.isSuccessful) {
-//                            val books = response.body()?.items
-//                            if (books != null) {
-//                                data = books.size.toString()
-//                                Log.d("MainActivity", "Success, ${books.size} books")
-//                            }
-//                        } else {
-//                            Log.e("MainActivity", "Error: ${response.code()}")
-//                        }
-//                    }
-//
-//                    override fun onFailure(call: Call<Bookshelf>, t: Throwable) {
-//                        Log.e("MainActivity", "Failure: ${t.message}")
-//                    }
-//                })
-            } catch (e: IOException) {
-                Log.d("MainActivity", "IOException: ${e}")
-            } catch (e: HttpException) {
-                Log.d("MainActivity", "HttpException: ${e}")
+    fun getBookshelf(input: String) {
+        if (input.isNotEmpty()) {
+            viewModelScope.launch {
+                try {
+                    val validResponse = bookshelfRepository.searchBooks(input)
+                    _bookshelfState.update {
+                        it.copy(bookshelf = validResponse, responseState = ResponseState.Success)
+                    }
+                    println("$input the number of result is ${bookshelfState.value.bookshelf?.items?.size}")
+                } catch (e: IOException) {
+                    _bookshelfState.update {
+                        it.copy(bookshelf = null, responseState = ResponseState.Error)
+                    }
+                } catch (e: HttpException) {
+                    _bookshelfState.update {
+                        it.copy(bookshelf = null, responseState = ResponseState.Error)
+                    }
+                }
             }
-            Log.d("MainActivity", "finished")
         }
     }
 
