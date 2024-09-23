@@ -1,7 +1,7 @@
 package com.kote.bookshelf.network
 
 import com.kote.bookshelf.model.Bookshelf
-import com.kote.bookshelf.model.TestInfo
+//import com.kote.bookshelf.model.TestInfo
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -14,6 +14,6 @@ interface BookshelfApiService {
         @Query("maxResults") maxResults: Int = 20
     ): Bookshelf
 
-    @GET("volumes/{id}&maxResults=40")
-    suspend fun getSpecificBook(@Path("id") id: String): TestInfo
+//    @GET("volumes/{id}")
+//    suspend fun getSpecificBook(@Path("id") id: String): TestInfo
 }

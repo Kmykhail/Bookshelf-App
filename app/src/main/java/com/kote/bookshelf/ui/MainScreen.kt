@@ -4,6 +4,8 @@ package com.kote.bookshelf.ui
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,15 +18,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.kote.bookshelf.R
 import com.kote.bookshelf.model.BookItem
@@ -60,7 +64,7 @@ import com.kote.bookshelf.ui.theme.BookshelfTheme
 
 @Composable
 fun MainScreen(
-    bookshelfViewModel: BookshelfViewModel,
+    bookshelfViewModel: BookshelfViewModel = viewModel(factory = BookshelfViewModel.Factory),
     bookshelfUiState: BookshelfUiState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -80,12 +84,20 @@ fun MainScreen(
             onSearchChange = {bookshelfViewModel.getBookshelf(it)}
         )
 
-        BookshelfBar(bookshelfUiState.bookshelf?.getBookNumber() ?: 0)
+        BookshelfBar(
+            bookshelfViewModel = bookshelfViewModel,
+            bookNumber = bookshelfUiState.bookshelf?.getBookNumber() ?: 0
+        )
 
-        when (bookshelfUiState.responseState) {
-            ResponseState.Success -> BookshelfGrid(bookItems = bookshelfUiState.bookshelf!!.getBooks())
-            ResponseState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-            ResponseState.Error -> ErrorScreen(retryAction = {})
+        Box(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            when (bookshelfUiState.responseState) {
+                ResponseState.Success -> BookshelfGrid(bookItems = bookshelfUiState.bookshelf!!.getBooks())
+                ResponseState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+                ResponseState.Error -> ErrorScreen(retryAction = {})
+            }
         }
     }
 }
@@ -169,11 +181,13 @@ fun SearchField(
 
 @Composable
 fun BookshelfBar(
+    bookshelfViewModel: BookshelfViewModel,
     bookNumber: Int = 0,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
     ) {
@@ -182,10 +196,23 @@ fun BookshelfBar(
             style = MaterialTheme.typography.labelLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
             ),
-            modifier = modifier.weight(1f),
         )
 
-        TextButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {}) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .border(2.dp, Color.Yellow, CircleShape)
+                    .padding(4.dp) // Padding inside the border
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "favorites",
+                )
+            }
+        }
+
+        TextButton(onClick = { bookshelfViewModel.sort()}) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "SORT", style = MaterialTheme.typography.labelLarge)
                 Icon(
@@ -207,7 +234,7 @@ fun BookshelfGrid(
             columns = GridCells.Fixed(3),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             items(bookItems) {book ->
                 ThumbnailCard(
@@ -267,7 +294,7 @@ fun SearchFieldPreview() {
 fun BooksBarPreview() {
     val bookNumber = 42
     BookshelfTheme {
-        BookshelfBar(bookNumber = bookNumber)
+//        BookshelfBar(bookNumber = 10)
     }
 }
 

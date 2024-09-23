@@ -9,6 +9,10 @@ data class Bookshelf(
 ) {
     fun getBookNumber() = items.size
     fun getBooks() : List<BookItem> = items
+    fun sortByTitle(): Bookshelf {
+        val sortedBooks = items.sortedBy { it.volumeInfo.title } // Sort by title
+        return this.copy(items = sortedBooks)
+    }
 }
 
 @Serializable
@@ -58,12 +62,4 @@ data class VolumeInfo (
 data class ImageLinks(
     val smallThumbnail: String? = null,
     val thumbnail: String? = null
-)
-
-@Serializable
-data class TestInfo(
-    val kind: String,
-    val id: String,
-    val selfLink: String,
-    val etag: String,
 )

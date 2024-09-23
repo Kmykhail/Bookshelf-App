@@ -58,6 +58,13 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
         }
     }
 
+    fun sort() {
+        _bookshelfState.value.run {
+            var sortedBookshelf = bookshelf?.sortByTitle()
+            _bookshelfState.update { it.copy(bookshelf = sortedBookshelf) }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
