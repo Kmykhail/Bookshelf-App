@@ -60,6 +60,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.kote.bookshelf.R
 import com.kote.bookshelf.model.BookItem
+import com.kote.bookshelf.ui.components.BookshelfBar
+import com.kote.bookshelf.ui.components.SearchField
 import com.kote.bookshelf.ui.theme.BookshelfTheme
 
 @Composable
@@ -124,102 +126,6 @@ fun ErrorScreen(
         Text(text = "Failed to load", modifier = Modifier.padding(16.dp))
         Button(onClick = retryAction) {
             Text(text = "Retry")
-        }
-    }
-}
-
-@Composable
-fun SearchField(
-    onSearchChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var text by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    Box(
-        modifier = Modifier
-            .padding(vertical = 10.dp)
-            .clip(RoundedCornerShape(10.dp))
-    ) {
-        TextField(
-            value = text,
-            onValueChange = {text = it},
-            placeholder = {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search book")
-                    Text(text = "Search book")
-                }
-            },
-            trailingIcon = {
-                if (text.isNotEmpty()) {
-                    IconButton(onClick = { text = "" }) {
-                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear text")
-                    }
-                }
-            },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    onSearchChange(text)
-                    keyboardController?.hide()
-                }
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-@Composable
-fun BookshelfBar(
-    bookshelfViewModel: BookshelfViewModel,
-    bookNumber: Int = 0,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "$bookNumber BOOKS",
-            style = MaterialTheme.typography.labelLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            ),
-        )
-
-        IconButton(onClick = {}) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = modifier
-                    .border(2.dp, Color.Yellow, CircleShape)
-                    .padding(4.dp) // Padding inside the border
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "favorites",
-                )
-            }
-        }
-
-        TextButton(onClick = { bookshelfViewModel.sort()}) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "SORT", style = MaterialTheme.typography.labelLarge)
-                Icon(
-                    imageVector = Icons.Default.Sort,
-                    contentDescription = null
-                )
-            }
         }
     }
 }

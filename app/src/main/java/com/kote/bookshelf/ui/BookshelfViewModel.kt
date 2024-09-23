@@ -1,6 +1,7 @@
 package com.kote.bookshelf.ui
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kote.bookshelf.BookshelfApplication
 import com.kote.bookshelf.data.BookshelfRepository
+import com.kote.bookshelf.model.BookItem
 import com.kote.bookshelf.model.Bookshelf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +36,7 @@ data class BookshelfUiState(
 
 class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) : ViewModel() {
     private val _bookshelfState = MutableStateFlow(BookshelfUiState())
+    private var _sortState: MutableState<Boolean> = mutableStateOf(false)
     val bookshelfState: StateFlow<BookshelfUiState> = _bookshelfState
 
     fun getBookshelf(userInput: String) {
@@ -44,7 +47,6 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
                     _bookshelfState.update {
                         it.copy(bookshelf = validResponse, responseState = ResponseState.Success)
                     }
-                    Log.d("ViewModel", "$userInput the number of result is ${bookshelfState.value.bookshelf?.items?.size}")
                 } catch (e: IOException) {
                     _bookshelfState.update {
                         it.copy(bookshelf = null, responseState = ResponseState.Error)
@@ -59,10 +61,9 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
     }
 
     fun sort() {
-        _bookshelfState.value.run {
-            var sortedBookshelf = bookshelf?.sortByTitle()
-            _bookshelfState.update { it.copy(bookshelf = sortedBookshelf) }
-        }
+        _bookshelfState.value.bookshelf?.sortByTitle(sortState = _sortState.value)
+        _sortState.value = !_sortState.value
+        Log.d("BookshelfApp", "sort state:$_sortState")
     }
 
     companion object {

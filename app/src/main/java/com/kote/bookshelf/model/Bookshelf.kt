@@ -1,17 +1,24 @@
 package com.kote.bookshelf.model
 
+import android.util.Log
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Bookshelf(
-    val items: List<BookItem> = emptyList()
+    var items: MutableList<BookItem> = mutableListOf()
 ) {
     fun getBookNumber() = items.size
     fun getBooks() : List<BookItem> = items
-    fun sortByTitle(): Bookshelf {
-        val sortedBooks = items.sortedBy { it.volumeInfo.title } // Sort by title
-        return this.copy(items = sortedBooks)
+    fun sortByTitle(sortState: Boolean) {
+        when(sortState) {
+            false -> items.sortBy { it.volumeInfo.title.lowercase() }
+            true -> items.sortByDescending { it.volumeInfo.title.lowercase() }
+        }
+        Log.d("BookshelfApp", "sorted by title:\n")
+        items.forEach{ bookItem ->
+            Log.d("BookshelfApp", "${bookItem.volumeInfo.title}")
+        }
     }
 }
 
@@ -29,11 +36,11 @@ data class BookItem (
 data class VolumeInfo (
     val title: String,
     val authors: List<String> = emptyList(), // Nullable in case no authors are provided
-    val publisher: String? = null,
-    val publishedDate: String? = null,
-    val description: String? = null,
-    val pageCount: Int? = null,
-    val printType: String? = null,
+    val publisher: String,
+    val publishedDate: String,
+    val description: String,
+    val pageCount: Int,
+    val printType: String,
     val categories: List<String>? = null,
     val imageLinks: ImageLinks? = null, // Nullable if images are missing
     val language: String,
@@ -43,9 +50,6 @@ data class VolumeInfo (
 ) {
     private fun isCompleted(): Boolean {
         return authors.isNotEmpty() &&
-                publisher != null &&
-                pageCount != null &&
-                printType != null &&
                 categories != null &&
                 imageLinks != null
     }
