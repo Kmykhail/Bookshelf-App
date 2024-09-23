@@ -8,9 +8,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BookshelfApiService {
-    @GET("volumes")
-    suspend fun searchBooks(@Query("q") query: String): Bookshelf
+    @GET("volumes/")
+    suspend fun searchBooks(
+        @Query("q") query: String,
+        @Query("maxResults") maxResults: Int = 20
+    ): Bookshelf
 
-    @GET("volumes/{id}")
+    @GET("volumes/{id}&maxResults=40")
     suspend fun getSpecificBook(@Path("id") id: String): TestInfo
 }
