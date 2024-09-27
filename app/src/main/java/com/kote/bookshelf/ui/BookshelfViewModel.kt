@@ -2,9 +2,7 @@ package com.kote.bookshelf.ui
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -13,16 +11,12 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kote.bookshelf.BookshelfApplication
 import com.kote.bookshelf.data.BookshelfRepository
-import com.kote.bookshelf.model.BookItem
-import com.kote.bookshelf.model.Bookshelf
+import com.kote.bookshelf.model.Book
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 
 enum class ResponseState{
@@ -30,7 +24,7 @@ enum class ResponseState{
 }
 
 data class BookshelfUiState(
-    val bookshelf: Bookshelf? = null,
+    val bookItems: List<Book> = emptyList(),
     val responseState: ResponseState = ResponseState.Loading
 )
 
@@ -44,26 +38,62 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
             viewModelScope.launch {
                 try {
                     val validResponse = bookshelfRepository.searchBooks(userInput)
+                        val filteredBooks: List<Book> = validResponse.items.map { bookItem ->
+                            Book(
+                                id = bookItem.id,
+                                title = bookItem.volumeInfo.title,
+                                authors = bookItem.volumeInfo.authors,
+                                thumbnail = bookItem.volumeInfo.getThumbnail() ?: "",
+                                isFavorite = false
+                            )
+                    }
                     _bookshelfState.update {
-                        it.copy(bookshelf = validResponse, responseState = ResponseState.Success)
+                        it.copy(bookItems = filteredBooks, responseState = ResponseState.Success)
+                    }
+
+                    _bookshelfState.value.bookItems.forEach {book ->
+                        bookshelfRepository.insertBook(book)
                     }
                 } catch (e: IOException) {
                     _bookshelfState.update {
-                        it.copy(bookshelf = null, responseState = ResponseState.Error)
+                        it.copy(responseState = ResponseState.Error)
                     }
                 } catch (e: HttpException) {
                     _bookshelfState.update {
-                        it.copy(bookshelf = null, responseState = ResponseState.Error)
+                        it.copy(responseState = ResponseState.Error)
                     }
                 }
             }
         }
     }
 
-    fun sort() {
-        _bookshelfState.value.bookshelf?.sortByTitle(sortState = _sortState.value)
-        _sortState.value = !_sortState.value
-        Log.d("BookshelfApp", "sort state:$_sortState")
+    fun toggleFavorite(book: Book) {
+        viewModelScope.launch {
+            _bookshelfState.value.run {
+                val updatedBooks = bookItems.map {
+                    if (it.id == book.id) it.copy(isFavorite = !book.isFavorite) else it
+                }
+                _bookshelfState.update {
+                    it.copy(bookItems = updatedBooks)
+                }
+            }
+
+            val newBook = _bookshelfState.value.bookItems.find { it.id == book.id }
+            if (newBook != null) {
+                bookshelfRepository.updateBook(newBook)
+            }
+        }
+    }
+
+    fun testRoom() {
+        viewModelScope.launch {
+            try {
+                val all = bookshelfRepository.getFavoriteBooks()
+                Log.d("BookshelfApp", "list:${all}")
+            } catch (e: Exception) {
+                Log.d("BookshelfApp", "Ops new exception $e")
+            }
+        }
     }
 
     companion object {

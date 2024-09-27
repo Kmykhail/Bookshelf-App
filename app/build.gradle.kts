@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id("kotlin-kapt")
 }
 
 android {
@@ -69,12 +70,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     // Room
     val room_version = "2.6.1"
+
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
 
     // Retrofit
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")

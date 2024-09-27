@@ -1,5 +1,6 @@
 package com.kote.bookshelf.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.SortByAlpha
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,7 @@ import com.kote.bookshelf.ui.BookshelfViewModel
 @Composable
 fun BookshelfBar(
     bookshelfViewModel: BookshelfViewModel,
+    favoriteAction: () -> Unit,
     bookNumber: Int = 0,
     modifier: Modifier = Modifier
 ) {
@@ -41,21 +43,15 @@ fun BookshelfBar(
             )
         )
 
-        IconButton(onClick = {}) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = modifier
-                    .border(2.dp, Color.Yellow, CircleShape)
-                    .padding(4.dp) // Padding inside the border
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "favorites",
-                )
-            }
+        IconButton(onClick = favoriteAction) {
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = "favorites",
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            )
         }
 
-        TextButton(onClick = { bookshelfViewModel.sort() }) {
+        TextButton(onClick = {  }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "SORT", style = MaterialTheme.typography.labelLarge)
                 Icon(
