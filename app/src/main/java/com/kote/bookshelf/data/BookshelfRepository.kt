@@ -11,7 +11,7 @@ import retrofit2.http.Query
 interface BookshelfRepository {
     //    suspend fun getSpecificBook(@Path("id") param: String): TestInfo
     suspend fun getAll() : List<Book>
-    suspend fun getFavoriteBooks() : List<Book>
+    fun getFavoriteBooks() : Flow<List<Book>>
     suspend fun searchBooks(@Query("q") query: String): BookshelfResponse
     suspend fun insertBook(book: Book)
     suspend fun updateBook(book: Book)
@@ -26,7 +26,7 @@ class GeneralBookshelfRepository(
     override suspend fun searchBooks(query: String): BookshelfResponse = bookshelfApiService.searchBooks(query)
 
     override suspend fun getAll(): List<Book>  = favoriteBooksDao.getAll()
-    override suspend fun getFavoriteBooks(): List<Book> = favoriteBooksDao.getFavoriteBooks()
+    override fun getFavoriteBooks(): Flow<List<Book>> = favoriteBooksDao.getFavoriteBooks()
     override suspend fun insertBook(book: Book) {
         favoriteBooksDao.insertBook(book)
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SearchField(
+    done: () -> Unit,
     onSearchChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -71,6 +72,7 @@ fun SearchField(
                 onDone = {
                     onSearchChange(text)
                     keyboardController?.hide()
+                    done()
                 }
             ),
             modifier = Modifier.fillMaxWidth()

@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.kote.bookshelf.model.Book
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookDao {
@@ -14,7 +15,7 @@ interface BookDao {
     suspend fun getAll(): List<Book>
 
     @Query("SELECT * FROM book WHERE isFavorite = 1")
-    suspend fun getFavoriteBooks() : List<Book>
+    fun getFavoriteBooks(): Flow<List<Book>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBook(book: Book)

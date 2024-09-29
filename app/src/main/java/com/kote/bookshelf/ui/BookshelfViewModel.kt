@@ -12,8 +12,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kote.bookshelf.BookshelfApplication
 import com.kote.bookshelf.data.BookshelfRepository
 import com.kote.bookshelf.model.Book
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -30,8 +33,14 @@ data class BookshelfUiState(
 
 class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) : ViewModel() {
     private val _bookshelfState = MutableStateFlow(BookshelfUiState())
-    private var _sortState: MutableState<Boolean> = mutableStateOf(false)
     val bookshelfState: StateFlow<BookshelfUiState> = _bookshelfState
+
+    private var _sortState = MutableStateFlow(false)
+    val sortState: StateFlow<Boolean> = _sortState
+
+    // StateFlow to observe the list of favorite books
+    val favoriteBooks: StateFlow<List<Book>> = bookshelfRepository.getFavoriteBooks()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun getBookshelf(userInput: String) {
         if (userInput.isNotEmpty()) {
@@ -70,30 +79,32 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
     fun toggleFavorite(book: Book) {
         viewModelScope.launch {
             _bookshelfState.value.run {
-                val updatedBooks = bookItems.map {
-                    if (it.id == book.id) it.copy(isFavorite = !book.isFavorite) else it
+                val updatedBook = book.copy(isFavorite = !book.isFavorite)
+                _bookshelfState.update { currentState ->
+                    val updatedBooks = currentState.bookItems.map {
+                        if (it.id == book.id) updatedBook else it
+                    }
+                    currentState.copy(bookItems = updatedBooks)
                 }
-                _bookshelfState.update {
-                    it.copy(bookItems = updatedBooks)
-                }
-            }
-
-            val newBook = _bookshelfState.value.bookItems.find { it.id == book.id }
-            if (newBook != null) {
-                bookshelfRepository.updateBook(newBook)
+                bookshelfRepository.updateBook(updatedBook)
             }
         }
     }
 
-    fun testRoom() {
-        viewModelScope.launch {
-            try {
-                val all = bookshelfRepository.getFavoriteBooks()
-                Log.d("BookshelfApp", "list:${all}")
-            } catch (e: Exception) {
-                Log.d("BookshelfApp", "Ops new exception $e")
-            }
+    fun sortByTitle() {
+        Log.d("BookshelfView", "sortByTitle triggered")
+        val sortedByTitle = if (_sortState.value) {
+            _bookshelfState.value.bookItems.sortedByDescending { it.title } // Sort in descending order
+        } else {
+            _bookshelfState.value.bookItems.sortedBy { it.title } // Sort in ascending order
         }
+
+        _bookshelfState.update { currentState ->
+            currentState.copy(bookItems = sortedByTitle)
+        }
+
+        _sortState.value = !_sortState.value
+        Log.d("BookshelfView", "sortState is $_sortState\n ${_bookshelfState.value.bookItems.forEach { it.title }}")
     }
 
     companion object {

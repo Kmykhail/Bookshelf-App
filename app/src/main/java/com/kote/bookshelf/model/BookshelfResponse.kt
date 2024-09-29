@@ -13,33 +13,20 @@ data class BookshelfResponse(
     fun getBooks() : List<BookItem> = items
 }
 
-@Entity
 @Serializable
 data class BookItem (
-    @PrimaryKey val id: String,
+    val id: String,
     val volumeInfo: VolumeInfo,
-    var isFavorite: Boolean = false
-) {
-    fun getThumbnail() : String? {
-        return volumeInfo.getThumbnail()
-    }
-}
+)
 
 @Serializable
 data class VolumeInfo (
     val title: String,
-    val authors: List<String> = emptyList(), // Nullable in case no authors are provided
-    val publisher: String,
-    val publishedDate: String,
-    val description: String,
-    val pageCount: Int,
-    val printType: String,
+    val authors: List<String> = emptyList(), // Nullable in case no authors are provided ,
+    val publisher: String? = null,
+    val description: String? = null,
     val categories: List<String>? = null,
     val imageLinks: ImageLinks? = null, // Nullable if images are missing
-    val language: String,
-    val previewLink: String,
-    val infoLink: String,
-    val canonicalVolumeLink: String
 ) {
     private fun isCompleted(): Boolean {
         return authors.isNotEmpty() &&
