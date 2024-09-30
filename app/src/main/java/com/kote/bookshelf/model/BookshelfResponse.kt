@@ -1,17 +1,11 @@
 package com.kote.bookshelf.model
 
-import android.util.Log
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BookshelfResponse(
     var items: MutableList<BookItem> = mutableListOf()
-) {
-    fun getBookNumber() = items.size
-    fun getBooks() : List<BookItem> = items
-}
+)
 
 @Serializable
 data class BookItem (

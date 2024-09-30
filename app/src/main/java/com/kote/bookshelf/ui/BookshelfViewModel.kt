@@ -51,6 +51,7 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
                                 title = bookItem.volumeInfo.title,
                                 authors = bookItem.volumeInfo.authors,
                                 thumbnail = bookItem.volumeInfo.getThumbnail() ?: "",
+                                descriptor = bookItem.volumeInfo.description ?: "",
                                 isFavorite = false
                             )
                     }

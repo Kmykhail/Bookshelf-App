@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.kote.bookshelf.model.Book
 import com.kote.bookshelf.util.DaoTypeConverter
 
-@Database(entities = [Book::class], version = 1, exportSchema = false)
+@Database(entities = [Book::class], version = 3, exportSchema = false)
 @TypeConverters(DaoTypeConverter::class)
 abstract class BookshelfDatabase: RoomDatabase() {
     abstract fun favoriteBooksDao() : BookDao

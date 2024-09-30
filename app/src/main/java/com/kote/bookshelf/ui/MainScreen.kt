@@ -85,15 +85,15 @@ fun MainScreen(
                             books = bookshelfUiState.bookItems,
                             favoriteAction = {bookshelfViewModel.toggleFavorite(it)}
                         )
-                        ResponseState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+//                        ResponseState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
                         ResponseState.Error -> ErrorScreen(retryAction = {})
+                        else -> {}
                     }
                 }
                 composable(Content.FavoriteBooks.route) {
                     FavoriteBooks(
                         books = favoriteBooks,
                         favoriteAction = {bookshelfViewModel.toggleFavorite(it)},
-                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
