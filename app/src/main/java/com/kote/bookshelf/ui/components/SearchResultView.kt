@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -63,6 +64,7 @@ fun BookshelfGrid(
 fun ThumbnailCard(
     book: Book,
     favoriteAction: (Book) -> Unit,
+    iconModifier: Modifier = Modifier,
     modifier: Modifier = Modifier
 ) {
     val thumbnail = book.thumbnail
@@ -90,21 +92,20 @@ fun ThumbnailCard(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = null,
                         tint = if (book.isFavorite) Color.Red else Color.Gray,
+                        modifier = iconModifier
                     )
                 }
             }
         } else {
             Image(
-                painter = rememberVectorPainter(Icons.Default.Error),
-                contentDescription = "Invalid Thumbnail",
+                painter = rememberVectorPainter(Icons.Default.Image),
+                contentDescription = "no image",
                 modifier = Modifier.fillMaxSize()
             )
-            Log.e("ThumbnailCard", "Invalid thumbnail URL: $thumbnail")
+            Log.e("ThumbnailCard", "Book without image: ${book.id}, ${book.title}, ${book.thumbnail}")
         }
     }
 }
-
-
 
 @Composable
 fun FavoriteBooks(
@@ -119,6 +120,7 @@ fun FavoriteBooks(
             ThumbnailCard(
                 book = book,
                 favoriteAction = favoriteAction,
+                iconModifier = modifier
             )
         }
     }

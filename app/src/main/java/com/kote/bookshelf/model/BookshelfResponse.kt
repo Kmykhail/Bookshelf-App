@@ -28,10 +28,12 @@ data class VolumeInfo (
     val categories: List<String>? = null,
     val imageLinks: ImageLinks? = null, // Nullable if images are missing
 ) {
-    private fun isCompleted(): Boolean {
+    fun isCompleted(): Boolean {
         return authors.isNotEmpty() &&
                 categories != null &&
-                imageLinks != null
+                imageLinks != null &&
+                publisher != null &&
+                description != null
     }
 
     fun getThumbnail(): String? {

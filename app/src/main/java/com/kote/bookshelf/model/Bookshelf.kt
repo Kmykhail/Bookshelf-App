@@ -1,7 +1,5 @@
 package com.kote.bookshelf.model
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

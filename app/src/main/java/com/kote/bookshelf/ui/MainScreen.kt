@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kote.bookshelf.R
-import com.kote.bookshelf.model.Book
 import com.kote.bookshelf.ui.components.BookshelfBar
 import com.kote.bookshelf.ui.components.BookshelfGrid
 import com.kote.bookshelf.ui.components.SearchField
@@ -91,7 +90,11 @@ fun MainScreen(
                     }
                 }
                 composable(Content.FavoriteBooks.route) {
-                    FavoriteBooks(books = favoriteBooks, favoriteAction = {bookshelfViewModel.toggleFavorite(it)})
+                    FavoriteBooks(
+                        books = favoriteBooks,
+                        favoriteAction = {bookshelfViewModel.toggleFavorite(it)},
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

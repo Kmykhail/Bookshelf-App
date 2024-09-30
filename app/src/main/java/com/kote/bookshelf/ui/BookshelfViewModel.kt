@@ -1,8 +1,6 @@
 package com.kote.bookshelf.ui
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -12,7 +10,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kote.bookshelf.BookshelfApplication
 import com.kote.bookshelf.data.BookshelfRepository
 import com.kote.bookshelf.model.Book
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +33,6 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
     val bookshelfState: StateFlow<BookshelfUiState> = _bookshelfState
 
     private var _sortState = MutableStateFlow(false)
-    val sortState: StateFlow<Boolean> = _sortState
 
     // StateFlow to observe the list of favorite books
     val favoriteBooks: StateFlow<List<Book>> = bookshelfRepository.getFavoriteBooks()
@@ -47,7 +43,9 @@ class BookshelfViewModel(private val bookshelfRepository: BookshelfRepository) :
             viewModelScope.launch {
                 try {
                     val validResponse = bookshelfRepository.searchBooks(userInput)
-                        val filteredBooks: List<Book> = validResponse.items.map { bookItem ->
+                        val filteredBooks: List<Book> = validResponse.items
+                            .filter { bookItem -> bookItem.volumeInfo.isCompleted() }
+                            .map { bookItem ->
                             Book(
                                 id = bookItem.id,
                                 title = bookItem.volumeInfo.title,
